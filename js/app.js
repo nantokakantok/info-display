@@ -9,7 +9,7 @@
 const Settings = {
   defaults: {
     weatherRegion: '130000',  // 東京
-    newsCategory: 'top-picks'
+    newsCategory: 'main'      // 主要ニュース
   },
 
   /**
@@ -54,18 +54,53 @@ const Settings = {
 // 時計
 // =====================================
 const Clock = {
+  dayNames: ['日', '月', '火', '水', '木', '金', '土'],
+
   /**
    * 現在時刻を更新
    */
   update() {
     const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const dayIndex = now.getDay();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    const timeEl = document.getElementById('currentTime');
-    if (timeEl) {
-      timeEl.textContent = `${hours}:${minutes}`;
+    // 時計パネルの更新
+    const clockDateEl = document.getElementById('clockDate');
+    if (clockDateEl) {
+      clockDateEl.textContent = `${year}年${month}月${date}日`;
+    }
+    
+    const clockHoursEl = document.getElementById('clockHours');
+    if (clockHoursEl) {
+      clockHoursEl.textContent = hours;
+    }
+    
+    const clockMinutesEl = document.getElementById('clockMinutes');
+    if (clockMinutesEl) {
+      clockMinutesEl.textContent = minutes;
+    }
+    
+    const clockSecondsEl = document.getElementById('clockSeconds');
+    if (clockSecondsEl) {
+      clockSecondsEl.textContent = seconds;
+    }
+    
+    const clockDayEl = document.getElementById('clockDay');
+    if (clockDayEl) {
+      clockDayEl.textContent = `${this.dayNames[dayIndex]}曜日`;
+      // 土日で色を変える
+      if (dayIndex === 0) {
+        clockDayEl.style.color = 'var(--sunday-color)';
+      } else if (dayIndex === 6) {
+        clockDayEl.style.color = 'var(--saturday-color)';
+      } else {
+        clockDayEl.style.color = 'var(--text-primary)';
+      }
     }
   },
 

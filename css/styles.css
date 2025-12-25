@@ -1,6 +1,6 @@
 /* ===============================================
    Info Display - LG 29インチウルトラワイド対応
-   解像度: 2560x1080
+   解像度: 1920x540
    =============================================== */
 
 * {
@@ -25,12 +25,13 @@ body {
   background: var(--primary-gradient);
   color: var(--text-primary);
   font-family: 'Hiragino Sans', 'Meiryo', 'Yu Gothic', sans-serif;
-  width: 2560px;
-  height: 1080px;
-  overflow: hidden;
+  min-width: 1920px;
+  height: 540px;
+  overflow-x: auto;
+  overflow-y: hidden;
   display: flex;
-  padding: 30px;
-  gap: 30px;
+  padding: 15px;
+  gap: 15px;
 }
 
 /* ===============================================
@@ -40,50 +41,124 @@ body {
   background: var(--panel-bg);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 30px;
+  border-radius: 15px;
+  padding: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--panel-border);
+  flex-shrink: 0;
 }
 
 .panel h2 {
-  font-size: 32px;
-  margin-bottom: 20px;
+  font-size: 20px;
+  margin-bottom: 10px;
   border-bottom: 2px solid var(--panel-border);
-  padding-bottom: 15px;
+  padding-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 /* ===============================================
-   現在時刻
+   時計パネル（新規追加）
    =============================================== */
-.time-display {
-  position: absolute;
-  top: 30px;
-  right: 40px;
-  font-size: 28px;
-  opacity: 0.9;
+.clock-panel {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.clock-time {
+  font-size: 72px;
+  font-weight: 200;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-seconds {
+  font-size: 36px;
+  font-weight: 100;
+  opacity: 0.7;
+  vertical-align: super;
+  margin-left: 5px;
+}
+
+.clock-date {
+  font-size: 18px;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.clock-day {
+  font-size: 24px;
   font-weight: 300;
+}
+
+/* 時計のパルスアニメーション */
+.clock-pulse {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.clock-pulse:nth-child(2) {
+  animation-delay: 0.5s;
+  width: 180px;
+  height: 180px;
+}
+
+.clock-pulse:nth-child(3) {
+  animation-delay: 1s;
+  width: 210px;
+  height: 210px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.1;
+  }
+}
+
+/* コロンの点滅 */
+.clock-colon {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 /* ===============================================
    カレンダーパネル
    =============================================== */
 .calendar {
-  width: 600px;
+  width: 320px;
   display: flex;
   flex-direction: column;
 }
 
 .calendar-header {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 
 .calendar-header .year-month {
-  font-size: 42px;
+  font-size: 22px;
   font-weight: 300;
   letter-spacing: 2px;
 }
@@ -92,18 +167,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 30px;
-  margin-bottom: 30px;
-  padding: 25px;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
+  border-radius: 10px;
 }
 
 .calendar-today .date-number {
-  font-size: 140px;
+  font-size: 64px;
   font-weight: bold;
   line-height: 1;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .calendar-today .day-info {
@@ -111,21 +192,22 @@ body {
 }
 
 .calendar-today .day-name {
-  font-size: 48px;
+  font-size: 24px;
   font-weight: 300;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
 .calendar-today .day-english {
-  font-size: 24px;
+  font-size: 12px;
   opacity: 0.7;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
 }
 
 /* ミニカレンダー */
 .mini-calendar {
   flex: 1;
+  overflow: hidden;
 }
 
 .mini-calendar table {
@@ -136,14 +218,14 @@ body {
 .mini-calendar th,
 .mini-calendar td {
   text-align: center;
-  padding: 12px 8px;
-  font-size: 20px;
+  padding: 4px 2px;
+  font-size: 13px;
 }
 
 .mini-calendar th {
   font-weight: 600;
   opacity: 0.8;
-  padding-bottom: 15px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--panel-border);
 }
 
@@ -158,16 +240,22 @@ body {
 }
 
 .mini-calendar td {
-  padding: 15px 8px;
-  border-radius: 10px;
+  padding: 6px 2px;
+  border-radius: 6px;
   transition: all 0.3s ease;
 }
 
 .mini-calendar td.today {
   background: var(--accent-color);
   font-weight: bold;
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  transform: scale(1.15);
+  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.5);
+  animation: todayPulse 2s ease-in-out infinite;
+}
+
+@keyframes todayPulse {
+  0%, 100% { box-shadow: 0 2px 10px rgba(76, 175, 80, 0.5); }
+  50% { box-shadow: 0 4px 20px rgba(76, 175, 80, 0.8); }
 }
 
 .mini-calendar td.other-month {
@@ -178,7 +266,7 @@ body {
    天気パネル
    =============================================== */
 .weather {
-  width: 650px;
+  width: 420px;
   display: flex;
   flex-direction: column;
 }
@@ -186,16 +274,22 @@ body {
 .weather-current {
   display: flex;
   align-items: center;
-  gap: 30px;
-  margin-bottom: 25px;
-  padding: 25px;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
+  border-radius: 10px;
 }
 
 .weather-icon {
-  font-size: 100px;
+  font-size: 50px;
   line-height: 1;
+  animation: weatherBounce 2s ease-in-out infinite;
+}
+
+@keyframes weatherBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .weather-main {
@@ -203,36 +297,36 @@ body {
 }
 
 .weather-temp {
-  font-size: 72px;
+  font-size: 42px;
   font-weight: bold;
   line-height: 1;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .weather-desc {
-  font-size: 28px;
+  font-size: 16px;
   opacity: 0.9;
 }
 
 .weather-details {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .weather-detail-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 20px;
-  padding: 12px 15px;
+  gap: 8px;
+  font-size: 13px;
+  padding: 8px 10px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .weather-detail-item .icon {
-  font-size: 24px;
+  font-size: 16px;
 }
 
 /* 週間予報 */
@@ -241,43 +335,43 @@ body {
 }
 
 .weather-forecast h3 {
-  font-size: 22px;
-  margin-bottom: 15px;
+  font-size: 14px;
+  margin-bottom: 8px;
   opacity: 0.9;
 }
 
 .forecast-list {
   display: flex;
-  gap: 10px;
+  gap: 6px;
 }
 
 .forecast-item {
   flex: 1;
   text-align: center;
-  padding: 15px 10px;
+  padding: 8px 4px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .forecast-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   transform: translateY(-3px);
 }
 
 .forecast-item .day {
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 11px;
+  margin-bottom: 4px;
   opacity: 0.8;
 }
 
 .forecast-item .icon {
-  font-size: 36px;
-  margin-bottom: 8px;
+  font-size: 22px;
+  margin-bottom: 4px;
 }
 
 .forecast-item .temps {
-  font-size: 14px;
+  font-size: 11px;
 }
 
 .forecast-item .temp-high {
@@ -294,6 +388,7 @@ body {
    =============================================== */
 .news {
   flex: 1;
+  min-width: 500px;
   display: flex;
   flex-direction: column;
 }
@@ -304,21 +399,42 @@ body {
 }
 
 .news-item {
-  padding: 18px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--panel-border);
-  font-size: 22px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.4;
   display: flex;
-  gap: 15px;
+  gap: 10px;
   transition: all 0.3s ease;
+  animation: slideIn 0.5s ease-out backwards;
+}
+
+.news-item:nth-child(1) { animation-delay: 0.1s; }
+.news-item:nth-child(2) { animation-delay: 0.15s; }
+.news-item:nth-child(3) { animation-delay: 0.2s; }
+.news-item:nth-child(4) { animation-delay: 0.25s; }
+.news-item:nth-child(5) { animation-delay: 0.3s; }
+.news-item:nth-child(6) { animation-delay: 0.35s; }
+.news-item:nth-child(7) { animation-delay: 0.4s; }
+.news-item:nth-child(8) { animation-delay: 0.45s; }
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .news-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  padding-left: 15px;
-  margin-left: -15px;
-  margin-right: -15px;
-  padding-right: 15px;
+  background: rgba(255, 255, 255, 0.08);
+  padding-left: 10px;
+  margin-left: -10px;
+  margin-right: -10px;
+  padding-right: 10px;
 }
 
 .news-item:last-child {
@@ -328,20 +444,27 @@ body {
 .news-item .number {
   color: var(--accent-color);
   font-weight: bold;
-  min-width: 30px;
+  min-width: 24px;
+  font-size: 14px;
 }
 
 .news-item .title {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.news-item a.title:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
 }
 
 .news-item .time {
-  font-size: 16px;
+  font-size: 12px;
   opacity: 0.6;
   white-space: nowrap;
 }
@@ -353,14 +476,14 @@ body {
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 14px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .settings-btn:hover {
@@ -387,41 +510,52 @@ body {
 
 .modal.active {
   display: flex;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
   background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-  padding: 50px;
-  border-radius: 25px;
-  width: 900px;
-  max-height: 85%;
+  padding: 30px;
+  border-radius: 20px;
+  width: 600px;
+  max-height: 90%;
   overflow-y: auto;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
   border: 1px solid var(--panel-border);
+  animation: modalSlideIn 0.3s ease-out;
 }
 
 .modal-content h2 {
-  margin-bottom: 40px;
-  font-size: 36px;
+  margin-bottom: 25px;
+  font-size: 24px;
   border-bottom: 2px solid var(--panel-border);
-  padding-bottom: 20px;
+  padding-bottom: 15px;
 }
 
 .setting-group {
-  margin-bottom: 35px;
+  margin-bottom: 20px;
 }
 
 .setting-group label {
   display: block;
-  font-size: 22px;
-  margin-bottom: 12px;
+  font-size: 16px;
+  margin-bottom: 8px;
   font-weight: 600;
 }
 
 .setting-group select {
   width: 100%;
-  padding: 15px 20px;
-  font-size: 20px;
+  padding: 12px 15px;
+  font-size: 16px;
   border-radius: 12px;
   border: 2px solid var(--panel-border);
   background: rgba(255, 255, 255, 0.1);
@@ -444,16 +578,16 @@ body {
 
 .modal-buttons {
   display: flex;
-  gap: 20px;
-  margin-top: 40px;
+  gap: 15px;
+  margin-top: 25px;
 }
 
 .modal-buttons button {
   flex: 1;
-  padding: 18px;
-  font-size: 22px;
+  padding: 12px;
+  font-size: 16px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
@@ -533,16 +667,79 @@ body {
   animation: fadeIn 0.5s ease-out;
 }
 
-.news-item {
-  animation: fadeIn 0.3s ease-out;
+/* 背景のグラデーションアニメーション */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at 20% 50%,
+    rgba(100, 181, 246, 0.15) 0%,
+    transparent 50%
+  );
+  animation: bgGlow 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at 80% 50%,
+    rgba(76, 175, 80, 0.1) 0%,
+    transparent 50%
+  );
+  animation: bgGlow2 10s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes bgGlow {
+  0% {
+    opacity: 0.5;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(30px, -20px);
+  }
+}
+
+@keyframes bgGlow2 {
+  0% {
+    opacity: 0.3;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translate(-30px, 20px);
+  }
+}
+
+/* パネルのホバーエフェクト */
+.panel {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.panel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* ===============================================
-   レスポンシブ対応（必要に応じて）
+   レスポンシブ対応
    =============================================== */
-@media (max-width: 2560px) and (min-width: 1920px) {
+@media (max-width: 1920px) {
   body {
+    min-width: auto;
     width: 100vw;
-    height: 100vh;
   }
 }

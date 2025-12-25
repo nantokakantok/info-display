@@ -14,8 +14,17 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
 </head>
 <body>
-  <!-- 現在時刻 -->
-  <div class="time-display" id="currentTime">--:--</div>
+  <!-- 時計パネル -->
+  <div class="panel clock-panel">
+    <div class="clock-pulse"></div>
+    <div class="clock-pulse"></div>
+    <div class="clock-pulse"></div>
+    <div class="clock-date" id="clockDate">----年--月--日</div>
+    <div class="clock-time">
+      <span id="clockHours">--</span><span class="clock-colon">:</span><span id="clockMinutes">--</span><span class="clock-seconds" id="clockSeconds">--</span>
+    </div>
+    <div class="clock-day" id="clockDay">--曜日</div>
+  </div>
   
   <!-- カレンダーパネル -->
   <div class="panel calendar">
@@ -149,15 +158,14 @@
       <div class="setting-group">
         <label for="categorySelect">📰 ニュースカテゴリ</label>
         <select id="categorySelect">
-          <option value="top-picks" selected>トップ</option>
-          <option value="domestic">国内</option>
-          <option value="world">国際</option>
+          <option value="main" selected>主要</option>
+          <option value="society">社会</option>
+          <option value="politics">政治</option>
           <option value="business">経済</option>
-          <option value="entertainment">エンタメ</option>
+          <option value="world">国際</option>
           <option value="sports">スポーツ</option>
-          <option value="it">IT</option>
-          <option value="science">科学</option>
-          <option value="local">地域</option>
+          <option value="science">科学・文化</option>
+          <option value="lifestyle">生活</option>
         </select>
       </div>
       
