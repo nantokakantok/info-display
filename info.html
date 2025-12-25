@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=540">
+  <title>情報ディスプレイ</title>
+  <style>
+    * {
+      margin:  0;
+      padding: 0;
+      box-sizing:  border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      width: 1920px;
+      height: 540px;
+      overflow: hidden;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+    
+    .panel {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* カレンダー */
+    .calendar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .calendar . month {
+      font-size: 36px;
+      font-weight:  300;
+      margin-bottom: 10px;
+    }
+    
+    .calendar . date {
+      font-size: 120px;
+      font-weight:  bold;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    
+    .calendar .day {
+      font-size: 48px;
+      font-weight:  300;
+    }
+    
+    /* 天気 */
+    .weather {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .weather h2 {
+      font-size:  28px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .weather-current {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .weather-icon {
+      font-size: 80px;
+    }
+    
+    .weather-temp {
+      font-size: 56px;
+      font-weight:  bold;
+    }
+    
+    .weather-desc {
+      font-size: 24px;
+      opacity: 0.9;
+    }
+    
+    .weather-details {
+      font-size: 18px;
+      line-height: 1.8;
+      opacity: 0.8;
+    }
+    
+    /* ニュース */
+    .news {
+      flex: 1.8;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .news h2 {
+      font-size: 28px;
+      margin-bottom:  15px;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom:  10px;
+      display:  flex;
+      justify-content:  space-between;
+      align-items: center;
+    }
+    
+    .news-list {
+      flex: 1;
+      overflow:  hidden;
+    }
+    
+    .news-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      font-size: 18px;
+      line-height:  1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .news-item:last-child {
+      border-bottom: none;
+    }
+    
+    .time {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size:  24px;
+      opacity: 0.8;
+    }
+    
+    .loading {
+      opacity: 0.5;
+      font-style: italic;
+    }
+    
+    /* 設定ボタン */
+    .settings-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s;
+    }
+    
+    .settings-btn:hover {
+      background:  rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    /* 設定モーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left:  0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal. active {
+      display: flex;
+    }
+    
+    . modal-content {
+      background:  linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+      padding: 40px;
+      border-radius:  20px;
+      width: 800px;
+      max-height: 80%;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content h2 {
+      margin-bottom: 30px;
+      font-size: 32px;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom: 15px;
+    }
+    
+    .setting-group {
+      margin-bottom: 30px;
+    }
+    
+    .setting-group label {
+      display: block;
+      font-size: 20px;
+      margin-bottom:  10px;
+      font-weight: bold;
+    }
+    
+    .setting-group select {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      cursor: pointer;
+    }
+    
+    .setting-group select option {
+      background: #1e3c72;
+      color: white;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    .modal-buttons button {
+      flex: 1;
+      padding:  15px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .save-btn {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .save-btn:hover {
+      background: #45a049;
+      transform: scale(1.02);
+    }
+    
+    .cancel-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    .cancel-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body>
+  <div class="time" id="currentTime"></div>
+  
+  <!-- カレンダー -->
+  <div class="panel calendar">
+    <div class="month" id="month"></div>
+    <div class="date" id="date"></div>
+    <div class="day" id="day"></div>
+  </div>
+  
+  <!-- 天気 -->
+  <div class="panel weather">
+    <h2>
+      <span>📍 <span id="regionName">東京</span>の天気</span>
+      <button class="settings-btn" onclick="openSettings()">⚙️ 設定</button>
+    </h2>
+    <div class="weather-current">
+      <div class="weather-icon" id="weatherIcon">☀️</div>
+      <div>
+        <div class="weather-temp" id="temp">--°C</div>
+        <div class="weather-desc" id="weatherDesc">読み込み中...</div>
+      </div>
+    </div>
+    <div class="weather-details" id="weatherDetails">
+      <div class="loading">天気情報を取得中...</div>
+    </div>
+  </div>
+  
+  <!-- ニュース -->
+  <div class="panel news">
+    <h2>
+      <span>📰 <span id="categoryName">トップ</span>ニュース</span>
+    </h2>
+    <div class="news-list" id="newsList">
+      <div class="loading">ニュースを読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <h2>⚙️ 設定</h2>
+      
+      <div class="setting-group">
+        <label for="regionSelect">🗾 天気予報の地域</label>
+        <select id="regionSelect">
+          <optgroup label="北海道">
+            <option value="016000">北海道（札幌）</option>
+            <option value="017000">北海道（函館）</option>
+          </optgroup>
+          <optgroup label="東北">
+            <option value="020000">青森県</option>
+            <option value="030000">岩手県</option>
+            <option value="040000">宮城県</option>
+            <option value="050000">秋田県</option>
+            <option value="060000">山形県</option>
+            <option value="070000">福島県</option>
+          </optgroup>
+          <optgroup label="関東">
+            <option value="080000">茨城県</option>
+            <option value="090000">栃木県</option>
+            <option value="100000">群馬県</option>
+            <option value="110000">埼玉県</option>
+            <option value="120000">千葉県</option>
+            <option value="130000" selected>東京都</option>
+            <option value="140000">神奈川県</option>
+          </optgroup>
+          <optgroup label="中部">
+            <option value="150000">新潟県</option>
+            <option value="160000">富山県</option>
+            <option value="170000">石川県</option>
+            <option value="180000">福井県</option>
+            <option value="190000">山梨県</option>
+            <option value="200000">長野県</option>
+            <option value="210000">岐阜県</option>
+            <option value="220000">静岡県</option>
+            <option value="230000">愛知県</option>
+          </optgroup>
+          <optgroup label="近畿">
+            <option value="240000">三重県</option>
+            <option value="250000">滋賀県</option>
+            <option value="260000">京都府</option>
+            <option value="270000">大阪府</option>
+            <option value="280000">兵庫県</option>
+            <option value="290000">奈良県</option>
+            <option value="300000">和歌山県</option>
+          </optgroup>
+          <optgroup label="中国">
+            <option value="310000">鳥取県</option>
+            <option value="320000">島根県</option>
+            <option value="330000">岡山県</option>
+            <option value="340000">広島県</option>
+            <option value="350000">山口県</option>
+          </optgroup>
+          <optgroup label="四国">
+            <option value="360000">徳島県</option>
+            <option value="370000">香川県</option>
+            <option value="380000">愛媛県</option>
+            <option value="390000">高知県</option>
+          </optgroup>
+          <optgroup label="九州・沖縄">
+            <option value="400000">福岡県</option>
+            <option value="410000">佐賀県</option>
+            <option value="420000">長崎県</option>
+            <option value="430000">熊本県</option>
+            <option value="440000">大分県</option>
+            <option value="450000">宮崎県</option>
+            <option value="460100">鹿児島県</option>
+            <option value="471000">沖縄県（那覇）</option>
+          </optgroup>
+        </select>
+      </div>
+      
+      <div class="setting-group">
+        <label for="categorySelect">📰 ニュースカテゴリ</label>
+        <select id="categorySelect">
+          <option value="top-picks" selected>トップ</option>
+          <option value="domestic">国内</option>
+          <option value="world">国際</option>
+          <option value="business">経済</option>
+          <option value="entertainment">エンタメ</option>
+          <option value="sports">スポーツ</option>
+          <option value="it">IT</option>
+          <option value="science">科学</option>
+          <option value="local">地域</option>
+        </select>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="save-btn" onclick="saveSettings()">💾 保存</button>
+        <button class="cancel-btn" onclick="closeSettings()">❌ キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =====================================
+    // 設定管理
+    // =====================================
+    const REGION_NAMES = {
+      '016000': '札幌', '017000': '函館',
+      '020000': '青森', '030000': '岩手', '040000': '宮城', '050000': '秋田', '060000': '山形', '070000': '福島',
+      '080000': '茨城', '090000': '栃木', '100000':  '群馬', '110000': '埼玉', '120000': '千葉', '130000': '東京', '140000': '神奈川',
+      '150000':  '新潟', '160000': '富山', '170000': '石川', '180000': '福井', '190000': '山梨', '200000': '長野', '210000': '岐阜', '220000': '静岡', '230000': '愛知',
+      '240000': '三重', '250000': '滋賀', '260000':  '京都', '270000':  '大阪', '280000': '兵庫', '290000': '奈良', '300000': '和歌山',
+      '310000': '鳥取', '320000':  '島根', '330000':  '岡山', '340000': '広島', '350000': '山口',
+      '360000': '徳島', '370000': '香川', '380000': '愛媛', '390000': '高知',
+      '400000': '福岡', '410000': '佐賀', '420000': '長崎', '430000': '熊本', '440000': '大分', '450000': '宮崎', '460100': '鹿児島', '471000': '沖縄'
+    };
+    
+    const CATEGORY_NAMES = {
+      'top-picks':  'トップ',
+      'domestic': '国内',
+      'world':  '国際',
+      'business': '経済',
+      'entertainment': 'エンタメ',
+      'sports': 'スポーツ',
+      'it': 'IT',
+      'science': '科学',
+      'local':  '地域'
+    };
+    
+    // LocalStorageから設定を読み込み
+    function loadSettings() {
+      const region = localStorage.getItem('weatherRegion') || '130000';
+      const category = localStorage.getItem('newsCategory') || 'top-picks';
+      return { region, category };
+    }
+    
+    // LocalStorageに設定を保存
+    function saveSettingsToStorage(region, category) {
+      localStorage.setItem('weatherRegion', region);
+      localStorage.setItem('newsCategory', category);
+    }
+    
+    // 設定モーダルを開く
+    function openSettings() {
+      const settings = loadSettings();
+      document.getElementById('regionSelect').value = settings.region;
+      document.getElementById('categorySelect').value = settings.category;
+      document.getElementById('settingsModal').classList.add('active');
+    }
+    
+    // 設定モーダルを閉じる
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('active');
+    }
+    
+    // 設定を保存
+    function saveSettings() {
+      const region = document.getElementById('regionSelect').value;
+      const category = document.getElementById('categorySelect').value;
+      
+      saveSettingsToStorage(region, category);
+      
+      // 表示名を更新
+      document.getElementById('regionName').textContent = REGION_NAMES[region];
+      document.getElementById('categoryName').textContent = CATEGORY_NAMES[category];
+      
+      // データを再取得
+      fetchWeather();
+      fetchNews();
+      
+      closeSettings();
+    }
+    
+    // =====================================
+    // カレンダー表示
+    // =====================================
+    function updateCalendar() {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const date = now.getDate();
+      const dayNames = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+      const day = dayNames[now.getDay()];
+      
+      document.getElementById('month').textContent = `${month}月`;
+      document.getElementById('date').textContent = date;
+      document.getElementById('day').textContent = day;
+    }
+    
+    // =====================================
+    // 現在時刻表示
+    // =====================================
+    function updateTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now. getMinutes()).padStart(2, '0');
+      document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+    }
+    
+    // =====================================
+    // 天気情報取得（気象庁JSON）
+    // =====================================
+    async function fetchWeather() {
+      try {
+        const settings = loadSettings();
+        const response = await fetch(`https://www.jma.go.jp/bosai/forecast/data/forecast/${settings.region}. json`);
+        const data = await response.json();
+        
+        // 今日の天気
+        const today = data[0]. timeSeries[0];
+        const weatherCode = today.areas[0].weatherCodes[0];
+        const weather = today.areas[0].weathers[0];
+        
+        // 気温データ
+        let temp = '--';
+        if (data[0].timeSeries. length >= 3 && data[0].timeSeries[2].areas[0].temps) {
+          temp = data[0].timeSeries[2].areas[0].temps[0];
+        }
+        
+        // 天気アイコン設定
+        const weatherIcon = getWeatherIcon(weatherCode);
+        
+        document.getElementById('weatherIcon').textContent = weatherIcon;
+        document.getElementById('temp').textContent = `${temp}°C`;
+        document.getElementById('weatherDesc').textContent = weather. split('　')[0];
+        
+        // 詳細情報
+        const wind = today.areas[0].winds[0];
+        const wave = today.areas[0].waves ?  today.areas[0].waves[0] : '';
+        
+        document.getElementById('weatherDetails').innerHTML = `
+          <div>💨 ${wind}</div>
+          ${wave ? `<div>🌊 ${wave}</div>` : ''}
+        `;
+        
+      } catch (error) {
+        console.error('天気情報の取得に失敗:', error);
+        document.getElementById('weatherDetails').innerHTML = 
+          '<div style="color: #ff6b6b;">天気情報を取得できませんでした</div>';
+      }
+    }
+    
+    // 天気コードからアイコンを取得
+    function getWeatherIcon(code) {
+      const iconMap = {
+        '100': '☀️', '101': '🌤️', '102': '⛅', '103': '🌥️',
+        '104': '☁️', '110': '🌤️', '111': '🌤️', '112': '🌤️',
+        '113': '🌤️', '114':  '🌤️', '115': '🌤️', '116': '🌤️',
+        '117': '🌤️', '118': '🌤️', '119': '🌤️', '120':  '🌤️',
+        '121': '🌤️', '122': '⛅', '123': '🌥️', '124': '🌥️',
+        '125': '🌥️', '126': '🌥️', '127': '🌥️', '128': '☁️',
+        '130': '🌧️', '131': '🌧️', '132': '🌧️', '140': '🌧️',
+        '200': '☁️', '201': '☁️', '202': '☁️', '203': '☁️',
+        '204':  '☁️', '206': '☁️', '207': '☁️', '208': '☁️',
+        '209': '☁️', '210': '☁️', '211': '☁️', '212': '☁️',
+        '213': '☁️', '214': '☁️', '215': '☁️', '216': '☁️',
+        '217': '☁️', '218': '☁️', '219': '☁️', '220': '☁️',
+        '221': '☁️', '222': '☁️', '223': '☁️', '224': '☁️',
+        '225': '☁️', '226': '☁️', '228': '☁️', '229': '☁️',
+        '230': '☁️', '231': '☁️', '240': '🌧️', '250': '🌧️',
+        '260': '🌧️', '270': '❄️', '281': '❄️', '300': '🌧️',
+        '301': '🌧️', '302': '🌧️', '303': '🌧️', '304': '🌧️',
+        '306': '🌧️', '308': '🌧️', '309': '🌧️', '311': '🌧️',
+        '313': '🌧️', '314': '🌧️', '315': '🌧️', '316': '🌧️',
+        '317': '🌧️', '320': '🌧️', '321': '🌧️', '322': '🌧️',
+        '323': '🌧️', '324': '🌧️', '325':  '🌧️', '326': '🌧️',
+        '327': '🌧️', '328': '🌧️', '329': '🌧️', '340': '❄️',
+        '350': '❄️', '361': '❄️', '371': '❄️', '400': '❄️',
+      };
+      return iconMap[code] || '🌈';
+    }
+    
+    // =====================================
+    // ニュース取得（Yahoo!  ニュースRSS）
+    // =====================================
+    async function fetchNews() {
+      try {
+        const settings = loadSettings();
+        const rssUrl = `https://news.yahoo.co.jp/rss/topics/${settings.category}. xml`;
+        const apiUrl = `https://api.rss2json.com/v1/api. json?rss_url=${encodeURIComponent(rssUrl)}`;
+        
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        const newsList = document.getElementById('newsList');
+        newsList.innerHTML = '';
+        
+        // 最新8件を表示
+        data.items.slice(0, 8).forEach((item, index) => {
+          const newsItem = document.createElement('div');
+          newsItem.className = 'news-item';
+          newsItem.textContent = `${index + 1}. ${item. title}`;
+          newsList.appendChild(newsItem);
+        });
+        
+      } catch (error) {
+        console.error('ニュースの取得に失敗:', error);
+        document.getElementById('newsList').innerHTML = 
+          '<div style="color: #ff6b6b;">ニュースを取得できませんでした</div>';
+      }
+    }
+    
+    // =====================================
+    // 初期化と定期更新
+    // =====================================
+    function init() {
+      // 設定を読み込んで表示名を更新
+      const settings = loadSettings();
+      document.getElementById('regionName').textContent = REGION_NAMES[settings.region];
+      document.getElementById('categoryName').textContent = CATEGORY_NAMES[settings.category];
+      
+      updateCalendar();
+      updateTime();
+      fetchWeather();
+      fetchNews();
+      
+      // 1分ごとに時刻とカレンダーを更新
+      setInterval(() => {
+        updateCalendar();
+        updateTime();
+      }, 60000);
+      
+      // 10分ごとに天気を更新
+      setInterval(fetchWeather, 600000);
+      
+      // 5分ごとにニュースを更新
+      setInterval(fetchNews, 300000);
+    }
+    
+    // ページ読み込み時に実行
+    init();
+  </script>
+</body>
+</html>

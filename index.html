@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=2560, height=1080">
+  <meta name="description" content="情報ディスプレイ - 天気・ニュース・カレンダーを表示するWebアプリケーション">
+  <meta name="theme-color" content="#1e3c72">
+  <title>情報ディスプレイ</title>
+  
+  <!-- スタイルシート -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- ファビコン -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+</head>
+<body>
+  <!-- 現在時刻 -->
+  <div class="time-display" id="currentTime">--:--</div>
+  
+  <!-- カレンダーパネル -->
+  <div class="panel calendar">
+    <div class="calendar-header">
+      <div class="year-month" id="yearMonth">----年--月</div>
+    </div>
+    <div class="calendar-today">
+      <div class="date-number" id="dateNumber">--</div>
+      <div class="day-info">
+        <div class="day-name" id="dayName">--曜日</div>
+        <div class="day-english" id="dayEnglish">-----</div>
+      </div>
+    </div>
+    <div class="mini-calendar" id="miniCalendar">
+      <!-- ミニカレンダーはJavaScriptで生成 -->
+    </div>
+  </div>
+  
+  <!-- 天気パネル -->
+  <div class="panel weather">
+    <h2>
+      <span>📍 <span id="regionName">東京</span>の天気</span>
+      <button class="settings-btn" onclick="openSettings()">
+        <span>⚙️</span>
+        <span>設定</span>
+      </button>
+    </h2>
+    <div class="weather-current">
+      <div class="weather-icon" id="weatherIcon">🌈</div>
+      <div class="weather-main">
+        <div class="weather-temp" id="temp">--°C</div>
+        <div class="weather-desc" id="weatherDesc">読み込み中...</div>
+      </div>
+    </div>
+    <div class="weather-details" id="weatherDetails">
+      <div class="loading">天気情報を取得中...</div>
+    </div>
+    <div class="weather-forecast">
+      <h3>📅 週間予報</h3>
+      <div class="forecast-list" id="forecastList">
+        <div class="loading">週間予報を取得中...</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ニュースパネル -->
+  <div class="panel news">
+    <h2>
+      <span>📰 <span id="categoryName">トップ</span>ニュース</span>
+    </h2>
+    <div class="news-list" id="newsList">
+      <div class="loading">ニュースを読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <h2>⚙️ 設定</h2>
+      
+      <div class="setting-group">
+        <label for="regionSelect">🗾 天気予報の地域</label>
+        <select id="regionSelect">
+          <optgroup label="北海道">
+            <option value="016000">北海道（札幌）</option>
+            <option value="017000">北海道（函館）</option>
+          </optgroup>
+          <optgroup label="東北">
+            <option value="020000">青森県</option>
+            <option value="030000">岩手県</option>
+            <option value="040000">宮城県</option>
+            <option value="050000">秋田県</option>
+            <option value="060000">山形県</option>
+            <option value="070000">福島県</option>
+          </optgroup>
+          <optgroup label="関東">
+            <option value="080000">茨城県</option>
+            <option value="090000">栃木県</option>
+            <option value="100000">群馬県</option>
+            <option value="110000">埼玉県</option>
+            <option value="120000">千葉県</option>
+            <option value="130000" selected>東京都</option>
+            <option value="140000">神奈川県</option>
+          </optgroup>
+          <optgroup label="中部">
+            <option value="150000">新潟県</option>
+            <option value="160000">富山県</option>
+            <option value="170000">石川県</option>
+            <option value="180000">福井県</option>
+            <option value="190000">山梨県</option>
+            <option value="200000">長野県</option>
+            <option value="210000">岐阜県</option>
+            <option value="220000">静岡県</option>
+            <option value="230000">愛知県</option>
+          </optgroup>
+          <optgroup label="近畿">
+            <option value="240000">三重県</option>
+            <option value="250000">滋賀県</option>
+            <option value="260000">京都府</option>
+            <option value="270000">大阪府</option>
+            <option value="280000">兵庫県</option>
+            <option value="290000">奈良県</option>
+            <option value="300000">和歌山県</option>
+          </optgroup>
+          <optgroup label="中国">
+            <option value="310000">鳥取県</option>
+            <option value="320000">島根県</option>
+            <option value="330000">岡山県</option>
+            <option value="340000">広島県</option>
+            <option value="350000">山口県</option>
+          </optgroup>
+          <optgroup label="四国">
+            <option value="360000">徳島県</option>
+            <option value="370000">香川県</option>
+            <option value="380000">愛媛県</option>
+            <option value="390000">高知県</option>
+          </optgroup>
+          <optgroup label="九州・沖縄">
+            <option value="400000">福岡県</option>
+            <option value="410000">佐賀県</option>
+            <option value="420000">長崎県</option>
+            <option value="430000">熊本県</option>
+            <option value="440000">大分県</option>
+            <option value="450000">宮崎県</option>
+            <option value="460100">鹿児島県</option>
+            <option value="471000">沖縄県（那覇）</option>
+          </optgroup>
+        </select>
+      </div>
+      
+      <div class="setting-group">
+        <label for="categorySelect">📰 ニュースカテゴリ</label>
+        <select id="categorySelect">
+          <option value="top-picks" selected>トップ</option>
+          <option value="domestic">国内</option>
+          <option value="world">国際</option>
+          <option value="business">経済</option>
+          <option value="entertainment">エンタメ</option>
+          <option value="sports">スポーツ</option>
+          <option value="it">IT</option>
+          <option value="science">科学</option>
+          <option value="local">地域</option>
+        </select>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="save-btn" onclick="saveSettings()">💾 保存</button>
+        <button class="cancel-btn" onclick="closeSettings()">❌ キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="js/calendar.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/news.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
