@@ -17,9 +17,49 @@ const News = {
     'local': '地域'
   },
 
-  // RSS to JSON変換サービス
-  // 注意: rss2json.comは無料プランで1日10,000リクエストまで
-  rss2jsonApi: 'https://api.rss2json.com/v1/api.json',
+  // 複数のプロキシサービス（フォールバック用）
+  proxyServices: [
+    {
+      name: 'rss2json',
+      buildUrl: (rssUrl) => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
+      parseResponse: async (response) => {
+        const data = await response.json();
+        if (data.status !== 'ok') throw new Error('RSS feed error');
+        return data.items;
+      }
+    },
+    {
+      name: 'allorigins',
+      buildUrl: (rssUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+      parseResponse: async (response) => {
+        const text = await response.text();
+        return News.parseRssXml(text);
+      }
+    },
+    {
+      name: 'corsproxy',
+      buildUrl: (rssUrl) => `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+      parseResponse: async (response) => {
+        const text = await response.text();
+        return News.parseRssXml(text);
+      }
+    }
+  ],
+
+  /**
+   * RSS XMLをパースしてアイテム配列に変換
+   */
+  parseRssXml(xmlText) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'text/xml');
+    const items = doc.querySelectorAll('item');
+    
+    return Array.from(items).map(item => ({
+      title: item.querySelector('title')?.textContent || '',
+      link: item.querySelector('link')?.textContent || '',
+      pubDate: item.querySelector('pubDate')?.textContent || ''
+    }));
+  },
 
   /**
    * カテゴリー名を取得
@@ -29,7 +69,7 @@ const News = {
   },
 
   /**
-   * ニュースを取得
+   * ニュースを取得（複数プロキシでフォールバック）
    */
   async fetch() {
     const category = Settings.get('newsCategory');
@@ -47,28 +87,41 @@ const News = {
       newsListEl.innerHTML = '<div class="loading">ニュースを読み込み中...</div>';
     }
 
-    try {
-      const rssUrl = `https://news.yahoo.co.jp/rss/topics/${category}.xml`;
-      const apiUrl = `${this.rss2jsonApi}?rss_url=${encodeURIComponent(rssUrl)}`;
-      
-      const response = await fetch(apiUrl);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    const rssUrl = `https://news.yahoo.co.jp/rss/topics/${category}.xml`;
+    
+    // 各プロキシサービスを順番に試す
+    for (const proxy of this.proxyServices) {
+      try {
+        console.log(`ニュース取得を試行中: ${proxy.name}`);
+        const apiUrl = proxy.buildUrl(rssUrl);
+        
+        const response = await fetch(apiUrl, {
+          signal: AbortSignal.timeout(10000) // 10秒タイムアウト
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const items = await proxy.parseResponse(response);
+        
+        if (items && items.length > 0) {
+          console.log(`ニュース取得成功: ${proxy.name}`);
+          this.render(items);
+          return; // 成功したら終了
+        }
+        
+        throw new Error('No items found');
+        
+      } catch (error) {
+        console.warn(`${proxy.name}での取得失敗:`, error.message);
+        // 次のプロキシを試す
       }
-      
-      const data = await response.json();
-      
-      if (data.status !== 'ok') {
-        throw new Error('RSS feed error');
-      }
-      
-      this.render(data.items);
-      
-    } catch (error) {
-      console.error('ニュースの取得に失敗:', error);
-      this.renderError();
     }
+    
+    // すべてのプロキシが失敗
+    console.error('すべてのプロキシサービスでニュース取得に失敗');
+    this.renderError();
   },
 
   /**
